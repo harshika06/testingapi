@@ -69,28 +69,32 @@
     const operation = document.getElementById('operation').value;
 
     if (!num1 || !num2) {
-      document.getElementById('result').innerHTML = 'Please enter both numbers.';
-      return;
+        document.getElementById('result').innerHTML = 'Please enter both numbers.';
+        return;
     }
 
-    // Construct the API URL
+    // Construct the API URL dynamically
     const apiUrl = `https://kgoi5winm5.execute-api.us-east-1.amazonaws.com/prod/calculate?operation=${operation}&num1=${num1}&num2=${num2}`;
 
     try {
-      // Fetch result from API Gateway
-      const response = await fetch(apiUrl);
-      const data = await response.json();
+        // Make the request to the API Gateway
+        const response = await fetch(apiUrl);
+        const data = await response.json();
 
-      // Display the result
-      if (response.ok) {
-        document.getElementById('result').innerHTML = `Result: ${data.result}`;
-      } else {
-        document.getElementById('result').innerHTML = `Error: ${data.error}`;
-      }
+        // Display the result from the API response
+        if (response.ok) {
+            document.getElementById('result').innerHTML = `Result: ${data.result}`;
+        } else {
+            document.getElementById('result').innerHTML = `Error: ${data.error}`;
+        }
     } catch (error) {
-      document.getElementById('result').innerHTML = 'Error fetching result. Please try again.';
+        // Display an error message if something goes wrong
+        document.getElementById('result').innerHTML = 'Error fetching result. Please try again.';
     }
-  }
+}
+
+ 
+  
 </script>
 
 </body>
