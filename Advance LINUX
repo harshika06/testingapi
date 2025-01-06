@@ -1,0 +1,759 @@
+apple is red.
+apple and mango are fruits.
+apple pie is delicious.
+
+sed 's/apple/mango' file.txt
+
+mango is red.
+mango and mango are fruits.
+mango pie is delicious.
+
+sed 's/apple/mango' file.txt > file1.txt
+sed '3d' file.txt
+sed '3.5d' file.txt (delete a line from 3to 5)
+sed '3d;7d' file.txt
+If you want to keep lines 3 to 5 and delete everything else:
+sed '1,2d; 6,$d' file.txt
+start=3
+end=7
+sed "${start},${end}d" file.txt
+apple orange apple banana apple
+sed 's/apple/\A&/g' file.txt
+Aapple orange Aapple banana Aapple
+
+apple is a fruit.
+I love applesauce.
+pineapple is delicious.
+apple pie is amazing.
+
+sed 's/\b apple\b/all/g' file.txt
+sed 's/\b apple\b/all/g'file.txt
+
+all is a fruit.
+I love applesauce.
+pineapple is delicious.
+all pie is amazing.
+
+---------------------------------------
+cut -d| -f 2,5 | tee xyz.txt
+John|Doe|30|Male|Engineer
+Field 2 is Doe and field 5 is Engineer for the first line.
+Doe|Engineer
+tee is a command that reads from standard input and writes the output to both standard output (the terminal) and to the file specified (xyz.txt).
+
+--------------------------------------------------------------------------
+chown -c master file.txt
+
+Suppose you have a file file1.txt and the current owner is user1:
+
+ls -l file1.txt 
+output
+-rw-r--r-- 1 user1 group1 123 Jan 6 12:00 file1.txt
+
+sudo chown -c master file1.txt
+output 
+changed ownership of 'file1.txt' from user1 to master
+ls -l file1.txt
+-rw-r--r-- 1 master group1 123 Jan 6 12:00 file1.txt
+
+-------------------------------------------------------------------------
+chmod [permissions] [file]
+Example with Symbolic Mode
+r: Read permission
+w: Write permission
+x: Execute permission
+u: User (owner)
+g: Group
+o: Others
+
+chmod u+x file1.txt
+Before (Initial Permissions):
+ls -l file1.txt
+-rw-r--r-- 1 user1 group1 123 Jan 6 12:00 file1.txt
+
+After (chmod u+x):
+-rwxr--r-- 1 user1 group1 123 Jan 6 12:00 file1.txt
+
+In numeric mode, permissions are represented by numbers:
+
+r = 4, w = 2, x = 1
+A file's permissions are set by summing the values of r, w, and x.
+
+chmod 755 file1.txt
+This command sets the permissions as:
+
+Owner (user1): read, write, execute (7 = 4+2+1)
+Group (group1): read, execute (5 = 4+1)
+Others: read, execute (5 = 4+1)
+
+Before:
+ls -l file1.txt
+-rw-r--r-- 1 user1 group1 123 Jan 6 12:00 file1.txt
+
+After:
+ls -l file1.txt
+-rwxr-xr-x 1 user1 group1 123 Jan 6 12:00 file1.txt
+
+-------------------------------------------------------------------------------
+find :
+find /opt/et/WAS/apps/shared/lib/ type -f -name db2jcc4.jar -exec ls -lrt {} \;
+/opt/et/WAS/apps/shared/lib/: The directory where you want to search.
+-type f: Specifies that you're looking for files (not directories).
+-name db2jcc4.jar: Specifies the name of the file you want to find, in this case, db2jcc4.jar.
+-exec ls -lrt {} \;: For each file found, this executes the ls -lrt command, which lists the file with detailed information (permissions, owner, group, size, etc.). The {} is a placeholder for the file name found by find
+
+Example:
+Assume you want to find the file db2jcc4.jar in the directory /opt/et/WAS/apps/shared/lib/. If it exists, the command will return something like:
+
+-rw-r--r-- 1 user1 group1 5120 Jan 6 14:20 /opt/et/WAS/apps/shared/lib/db2jcc4.jar
+
+
+2. List files older than 4 days 
+
+find . -type f -mtime +4 -exec ls -lrt {} \;
+
+.: The current directory (or you can specify another directory path).
+-type f: Search for files only.
+-mtime +4: Finds files that were modified more than 4 days ago. The + sign means "more than", and the number refers to the number of days.
+-exec ls -lrt {} \;: For each file found, execute ls -lrt to list the file with detailed information.
+
+Example:
+If the directory contains files, you might get results like:
+
+-rw-r--r-- 1 user1 group1 1024 Jan 2 10:30 file1.txt
+-rw-r--r-- 1 user2 group2 2048 Dec 29 15:20 file2.txt
+This command will list files that are older than 4 days based on their last modification date.
+
+3. List files larger than 19 MB
+find . -type f size +19000000c -exec ls-lrt {} \;
+
+Explanation:
+.: Search in the current directory (or you can specify another directory).
+-type f: Only find files (not directories).
+-size +19000000c: Finds files that are larger than 19,000,000 bytes (c stands for bytes). This is approximately 19 MB.
+-exec ls -lrt {} \;: For each file found, execute ls -lrt to show the file's detailed information.
+Example:
+If your directory contains files, and one of them is larger than 19 MB, you might see:
+
+-rw-r--r-- 1 user1 group1 22000000 Jan 6 12:00 large_file.txt
+This will list files that are larger than 19 MB.
+
+4. Find and remove files older than 30 days
+find . -mtime +30 | xargs rm
+
+Explanation:
+find .: Start searching from the current directory.
+-mtime +30: Finds files that were modified more than 30 days ago.
+| xargs rm: The | (pipe) sends the list of files to the xargs command, which passes the files to rm to remove them.
+
+find . -mtime +30 | xargs rm -r
+
+find . -type f -empty
+find . -type f -user usnername
+find . -type f -perm 644
+
+Summary of find Command Options:
+-type f: Find files only.
+-type d: Find directories only.
+-name: Search for files with a specific name (wildcards supported).
+-mtime: Find files based on modification time.
++n: Modified more than n days ago.
+-n: Modified within the last n days.
+n: Modified exactly n days ago.
+-size: Find files by size (e.g., +19000000c for files larger than 19 MB).
+-exec: Execute commands on found files.
+-empty: Find empty files or directories.
+-user: Find files owned by a specific user.
+-perm: Find files with specific permissions.
+
+--------------------------------------------------------------------------------
+
+grep -iR "8769" *
+Explanation:
+grep: A powerful search tool used to search for a specific pattern within files.
+-i: Case-insensitive search, meaning it will match "8769", "8769", "8769", etc.
+-R: Recursive search, meaning it will search through all subdirectories of the current directory.
+"8769": The string or pattern you are searching for.
+*: The * wildcard tells grep to search all files and directories starting from the current directory.
+
+grep -ilR "8769" *
+This will show only the names of files containing the string.
+
+--------------------------------------------------------------------------------
+
+ps -A
+(List all running processes)
+
+--------------------------------------------------------------------------
+
+kill -9 1234
+
+----------------------------------------------------------------
+#!/bin/bash
+
+nano example.sh
+ 
+Create a simple script file:
+
+Open a text editor, like nano or vim:
+ 
+nano example.sh
+Write the following content in the file:
+ 
+#!/bin/bash
+echo "Hello, world!"
+Save and exit the editor.
+
+Make the script executable:
+ 
+chmod +x example.sh
+Run the script:
+ 
+./example.sh
+Output:
+
+Copy code
+Hello, world!
+
+If you want to write a script using a different shell, such as sh or zsh, you would use the appropriate interpreter path:
+For sh: #!/bin/sh
+For zsh: #!/bin/zsh
+
+--------------------------------------------------------
+zip output.zip myfile.txt
+Explanation:
+zip: The command used to create a ZIP archive.
+output.zip: The name of the resulting ZIP file.
+myfile.txt: The file that will be compressed and added to the ZIP archive.
+
+zip output.zip file1.txt file2.txt file3.txt
+zip output.zip *
+
+zip -d output.zip myfile.txt
+This option is used to delete files from an existing ZIP archive
+
+zip -u output.zip myfile.txt
+-u: This option is used to update the ZIP archive. It will add new files or update files that have been modified in the specified archive.
+
+zip -m output.zip myfile.txt
+-m: This option is used to move files to the ZIP archive. After the files are compressed into the archive, they are deleted from the original location.
+
+zip -v output.zip myfile.txt
+-v: This option enables verbose mode, which provides detailed information about the files being added to the ZIP archive.
+
+-------------------------------------------------------------------
+cat >file(new file me edit krna)
+cat >> file( existing me dit krna)
+diff a.txt b.txt (dono me difference ke liye)
+
+--------------------------------------------------------------
+AWK & GREP and CUT
+
+awk '{print $2}' file_name
+John 25 Developer
+Alice 30 Manager
+Bob 22 Designer
+output : 
+25
+30
+22
+
+awk '{print $2, $3}' file_name
+John 25 Developer
+Alice 30 Manager
+Bob 22 Designer
+output : 
+25 Developer
+30 Manager
+22 Designer
+
+See the Last Column
+awk '{print $NF}' file_name
+$NF refers to the last field (column) in a line, no matter how many fields there are.
+
+See Line Number
+awk '{print NR}' file_name
+NR is a built-in variable that holds the current line number.
+John 25 Developer
+Alice 30 Manager
+Bob 22 Designer
+output :
+1
+2
+3
+
+Add Line Number with Content 
+awk '{print NR, $0}' file_name
+John 25 Developer
+Alice 30 Manager
+Bob 22 Designer
+1 John 25 Developer
+2 Alice 30 Manager
+3 Bob 22 Designer
+
+See Line Number with a Dash
+awk '{print NR "- " $2}' file_name
+
+John 25 Developer
+Alice 30 Manager
+Bob 22 Designer
+1 - 25
+2 - 30
+3 - 22
+
+
+How to see column 2 or 3?
+awk '{print $2}' file_name
+
+How to see multiple coulumns?
+awk '{print $2,$3}' file_name
+
+How to see last column?
+awk '{print $NF}' file_name
+
+How to see line no.?
+awk '{print NR}' file_name
+
+how to add lines and string
+awk '{print NR, $0}' file_name
+
+How to see line no. with - ?
+awk '{print NR "- " $2}' file_name
+
+How to get a column from CSV?
+awk -F, '{print $7}' country.txt
+
+How to change the salary of Pol?
+awk '{if($2=="Pol"){$3="90000"} print $0}' file_name
+
+How to see data of users whose salary is more than 40000?
+awk '{if($3>40000) print $0}' file_name
+
+How to see a line whose length of character is more than 15?
+awk 'length($0)>15' file_name
+
+How to see data of Indian users?
+awk '/India/ {print}' file_name
+
+How to see a specific line example 3rd line?
+awk 'NR==3 {print}' file_name
+
+How to see range of lines, 3 to 5th line?
+awk 'NR==3,NR==5 {print}'
+
+How to see which lines are empty?
+awk 'NF==0 {print NR}' file_name
+
+How to check no. of lines in the file?
+awk 'END {print NR}' file_name
+
+How to use for loop in AWK command?
+awk 'BEGIN {for(i=0;i<=10;i++) print i;}'
+
+How to use while loop in AWK command?
+awk 'BEGIN {while(i<10){ i++; print "Num is " i;}}'
+
+------------------------------------------------------------------------
+
+Here is an example of how to use the `grep` command to search for a specific string in a file:
+
+### **Example 1: Basic Search**
+If you have a file `employees.txt` containing the following data:
+
+```
+John, Developer, 50000
+Alice, Manager, 60000
+Bob, Designer, 40000
+Charlie, Developer, 55000
+```
+
+To search for the term **"Developer"** in the file, you can use:
+
+```bash
+grep "Developer" employees.txt
+```
+
+#### **Output**:
+```
+John, Developer, 50000
+Charlie, Developer, 55000
+```
+
+The `grep` command searches for lines containing the word **"Developer"** in the file `employees.txt` and returns those lines.
+
+---
+
+### **Example 2: Case-Insensitive Search**
+If you want to search without considering case (i.e., both "developer" and "Developer" should match), you can use the **`-i`** option for a case-insensitive search:
+
+```bash
+grep -i "developer" employees.txt
+```
+
+#### **Output**:
+```
+John, Developer, 50000
+Charlie, Developer, 55000
+```
+
+In this case, the command matches "Developer" in both upper and lower case.
+
+---
+
+### **Example 3: Search Recursively in Directories**
+If you want to search for **"Developer"** in all files within a directory and its subdirectories, you can use the **`-R`** option for a recursive search:
+
+```bash
+grep -R "Developer" /path/to/directory/
+```
+
+This will search for **"Developer"** in all files within `/path/to/directory/` and its subdirectories.
+
+---
+
+### **Example 4: Search with Line Numbers**
+If you want to include line numbers in the output, use the **`-n`** option:
+
+```bash
+grep -n "Developer" employees.txt
+```
+
+#### **Output**:
+```
+1:John, Developer, 50000
+4:Charlie, Developer, 55000
+```
+
+Here, the line numbers are shown before the matched lines.
+
+---
+
+### **Example 5: Search for Whole Words**
+To search for the exact word **"Developer"** (not as part of other words like "myDeveloper"), use the **`-w`** option:
+
+```bash
+grep -w "Developer" employees.txt
+```
+
+#### **Output**:
+```
+John, Developer, 50000
+Charlie, Developer, 55000
+```
+
+---
+
+### **Example 6: Count the Number of Matches**
+To count how many times the word **"Developer"** appears, use the **`-c`** option:
+
+```bash
+grep -c "Developer" employees.txt
+```
+
+#### **Output**:
+```
+2
+```
+
+This indicates that the word "Developer" appears 2 times in the file.
+
+---
+
+### **Example 7: Search for Multiple Patterns**
+If you want to search for multiple patterns, use the **`-e`** option. For example, to search for both **"Developer"** and **"Manager"**:
+
+```bash
+grep -e "Developer" -e "Manager" employees.txt
+```
+
+#### **Output**:
+```
+John, Developer, 50000
+Alice, Manager, 60000
+Charlie, Developer, 55000
+```
+
+---
+
+### **Summary of Common `grep` Options:**
+
+- **`-i`**: Case-insensitive search.
+- **`-R`**: Search recursively in directories.
+- **`-n`**: Display line numbers along with matched lines.
+- **`-w`**: Match the whole word.
+- **`-c`**: Count the number of matches.
+- **`-e`**: Specify multiple patterns.
+
+These examples should help you understand how to use `grep` for various search scenarios. Let me know if you need more examples or details!
+
+
+--------------------------------------------------------------------------------
+SCRIPTING
+
+Sure! Let's start with the **basics of Linux scripting**. A **shell script** is a file containing a series of commands that the shell (e.g., Bash) can execute. It's useful for automating repetitive tasks.
+
+---
+
+### **1. Writing a Basic Shell Script**
+
+#### **Steps to Create a Shell Script:**
+1. Open a text editor (e.g., `nano` or `vim`).
+2. Start the script with a **shebang**: `#!/bin/bash`. This tells the system to use Bash to run the script.
+3. Write your commands.
+4. Save the file with a `.sh` extension (e.g., `myscript.sh`).
+5. Make the script executable using `chmod`.
+
+#### **Example:**
+Create a script to print "Hello, World!".
+
+```bash
+#!/bin/bash
+# This is a comment
+echo "Hello, World!"
+```
+
+**To Run the Script:**
+1. Save it as `hello.sh`.
+2. Make it executable:
+   ```bash
+   chmod u+x hello.sh
+   ```
+3. Run the script:
+   ```bash
+   ./hello.sh
+   ```
+
+---
+
+### **2. Variables**
+You can store and use variables in scripts.
+
+#### **Example:**
+```bash
+#!/bin/bash
+name="Harshika"
+echo "Hello, $name!"
+```
+
+---
+
+### **3. User Input**
+Scripts can accept input from users using `read`.
+
+#### **Example:**
+```bash
+#!/bin/bash
+echo "What is your name?"
+read name
+echo "Hello, $name!"
+```
+
+---
+
+### **4. Conditional Statements**
+Shell scripts can make decisions using `if-else`.
+
+#### **Example:**
+```bash
+#!/bin/bash
+echo "Enter a number:"
+read number
+
+if [ $number -gt 10 ]; then
+    echo "The number is greater than 10."
+else
+    echo "The number is 10 or less."
+fi
+```
+
+---
+
+### **5. Loops**
+Loops allow you to repeat actions.
+
+#### **For Loop Example:**
+```bash
+#!/bin/bash
+for i in {1..5}; do
+    echo "Number: $i"
+done
+```
+
+#### **While Loop Example:**
+```bash
+#!/bin/bash
+count=1
+while [ $count -le 5 ]; do
+    echo "Count: $count"
+    count=$((count + 1))
+done
+```
+
+---
+
+### **6. Functions**
+Scripts can have reusable functions.
+
+#### **Example:**
+```bash
+#!/bin/bash
+greet() {
+    echo "Hello, $1!"
+}
+
+greet "Harshika"
+greet "Linux User"
+```
+
+---
+
+### **7. Basic File Operations**
+- **Check if a file exists**:
+  ```bash
+  if [ -f "filename.txt" ]; then
+      echo "File exists."
+  else
+      echo "File does not exist."
+  fi
+  ```
+
+- **Append to a file**:
+  ```bash
+  echo "New line" >> filename.txt
+  ```
+
+---
+
+### **8. Combining Commands**
+Use `&&`, `||`, or `;` to combine commands.
+- **Run commands sequentially**: `cmd1; cmd2`
+- **Run `cmd2` only if `cmd1` succeeds**: `cmd1 && cmd2`
+- **Run `cmd2` only if `cmd1` fails**: `cmd1 || cmd2`
+
+#### **Example:**
+```bash
+#!/bin/bash
+mkdir test_dir && echo "Directory created." || echo "Failed to create directory."
+```
+
+---
+
+### **9. Passing Arguments**
+You can pass arguments to a script when you run it.
+
+#### **Example:**
+```bash
+#!/bin/bash
+echo "The script name is: $0"
+echo "The first argument is: $1"
+echo "The second argument is: $2"
+```
+
+Run with:
+```bash
+./script.sh arg1 arg2
+```
+
+---
+
+### **10. Debugging Scripts**
+Use `bash -x script.sh` to debug and see the commands being executed step-by-step.
+
+---
+
+### **Practice Script**
+Write a script to display a menu and perform basic file operations:
+
+```bash
+#!/bin/bash
+echo "Choose an option:"
+echo "1. List files"
+echo "2. Show current directory"
+echo "3. Exit"
+
+read choice
+
+case $choice in
+    1) ls ;;
+    2) pwd ;;
+    3) echo "Goodbye!"; exit ;;
+    *) echo "Invalid option";;
+esac
+```
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
