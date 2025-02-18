@@ -134,5 +134,27 @@ WHERE column1 = 'specific_value';
    ```
 
 ---
+4. Aggregate Functions (Date/Time Related)
 
+COUNT() - Counts records.
+
+SUM() - Adds up values.
+
+AVG() - Calculates the average value.
+
+MIN() / MAX() - Finds the minimum/maximum value.
+
+4.1 Date Functions
+
+CURRENT_DATE - Fetches the current date.
+
+CURRENT_TIMESTAMP - Fetches current date & time.
+
+YEAR(date_column), MONTH(date_column), DAY(date_column) - Extracts year, month, or day.
+
+TIMESTAMPDIFF(DAY, start_date, end_date) - Finds difference in days.
+
+ADD_MONTHS(date_column, n) - Adds n months to a date.
+
+LAST_DAY(date_column) - Finds the last day of the month.
  
