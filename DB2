@@ -1,1 +1,138 @@
+# **SQL for Application Support in DB2 (Using PuTTY)**
+### **Lesson 1: Understanding the Ticket Workflow**
+1. **Common Ticket Scenarios**
+   - Data retrieval issues
+   - Data updates, inserts, and deletions
+   - Performance-related queries
+   - Data integrity checks
+   
+2. **Database Access in PuTTY**
+   - Connecting to the DB2 database
+   - Navigating tables and schemas
+   - Checking logs for errors
 
+---
+
+### **Lesson 2: DML Commands (INSERT, UPDATE, DELETE, SELECT)**
+#### **1. SELECT - Retrieving Data**
+- Retrieve all records:
+  ```sql
+  SELECT * FROM schema_name.table_name;
+  ```
+- Retrieve specific columns:
+  ```sql
+  SELECT column1, column2 FROM schema_name.table_name;
+  ```
+- Filtering with **WHERE**:
+  ```sql
+  SELECT * FROM schema_name.table_name WHERE column_name = 'value';
+  ```
+- Using **ORDER BY**:
+  ```sql
+  SELECT * FROM schema_name.table_name ORDER BY column_name DESC;
+  ```
+- Using **LIMIT** (fetch specific number of rows):
+  ```sql
+  SELECT * FROM schema_name.table_name FETCH FIRST 10 ROWS ONLY;
+  ```
+
+#### **2. INSERT - Adding Data**
+```sql
+INSERT INTO schema_name.table_name (column1, column2)
+VALUES ('value1', 'value2');
+```
+
+#### **3. UPDATE - Modifying Data**
+```sql
+UPDATE schema_name.table_name
+SET column1 = 'new_value'
+WHERE column2 = 'specific_value';
+```
+
+#### **4. DELETE - Removing Data**
+```sql
+DELETE FROM schema_name.table_name
+WHERE column1 = 'specific_value';
+```
+
+---
+
+### **Lesson 3: Working with Joins**
+1. **INNER JOIN** (Retrieve matching records from both tables)
+   ```sql
+   SELECT a.column1, b.column2
+   FROM schema_name.table1 a
+   INNER JOIN schema_name.table2 b
+   ON a.common_column = b.common_column;
+   ```
+2. **LEFT JOIN** (Retrieve all records from the left table and matching records from the right)
+   ```sql
+   SELECT a.column1, b.column2
+   FROM schema_name.table1 a
+   LEFT JOIN schema_name.table2 b
+   ON a.common_column = b.common_column;
+   ```
+3. **RIGHT JOIN** (Retrieve all records from the right table and matching records from the left)
+   ```sql
+   SELECT a.column1, b.column2
+   FROM schema_name.table1 a
+   RIGHT JOIN schema_name.table2 b
+   ON a.common_column = b.common_column;
+   ```
+4. **FULL JOIN** (Retrieve all records from both tables)
+   ```sql
+   SELECT a.column1, b.column2
+   FROM schema_name.table1 a
+   FULL JOIN schema_name.table2 b
+   ON a.common_column = b.common_column;
+   ```
+
+---
+
+### **Lesson 4: Handling Common Support Tickets**
+1. **Checking if a record exists**
+   ```sql
+   SELECT COUNT(*) FROM schema_name.table_name WHERE column_name = 'value';
+   ```
+2. **Finding duplicates**
+   ```sql
+   SELECT column_name, COUNT(*) 
+   FROM schema_name.table_name
+   GROUP BY column_name
+   HAVING COUNT(*) > 1;
+   ```
+3. **Checking last updated records**
+   ```sql
+   SELECT * FROM schema_name.table_name
+   ORDER BY last_modified_date DESC
+   FETCH FIRST 5 ROWS ONLY;
+   ```
+4. **Rolling back a transaction (if needed)**
+   ```sql
+   ROLLBACK;
+   ```
+5. **Commit changes to the database**
+   ```sql
+   COMMIT;
+   ```
+
+---
+
+### **Lesson 5: Debugging and Log Analysis**
+1. **Checking error logs**
+   ```sh
+   tail -f /path/to/db2/logs.log
+   ```
+2. **Checking active database sessions**
+   ```sql
+   SELECT * FROM SYSIBM.SYSSESSIONS;
+   ```
+3. **Finding long-running queries**
+   ```sql
+   SELECT STMT_TEXT, ELAPSED_TIME
+   FROM SYSIBMADM.LONG_RUNNING_SQL;
+   ```
+
+---
+
+ 
