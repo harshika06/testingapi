@@ -157,4 +157,180 @@ TIMESTAMPDIFF(DAY, start_date, end_date) - Finds difference in days.
 ADD_MONTHS(date_column, n) - Adds n months to a date.
 
 LAST_DAY(date_column) - Finds the last day of the month.
+
+
+# SQL for DB2 - Banking Project Notes
+
+## 1. Introduction to DB2 SQL
+DB2 is IBM's relational database management system. SQL in DB2 follows ANSI standards with some specific extensions for handling structured data.
+
+## 2. Basic SQL Commands
+- `SELECT` - Retrieve data from a table.
+- `INSERT` - Add records to a table.
+- `UPDATE` - Modify existing records.
+- `DELETE` - Remove records.
+- `CREATE TABLE` - Define a new table.
+- `ALTER TABLE` - Modify an existing table.
+- `DROP TABLE` - Delete a table.
+- `TRUNCATE TABLE` - Remove all records from a table without logging individual row deletions.
+
+## 3. Joins in DB2
+### 3.1 INNER JOIN
+Retrieves matching rows from both tables.
+```sql
+SELECT p.payment_id, p.amount, c.customer_name
+FROM payments p
+INNER JOIN customers c ON p.customer_id = c.customer_id;
+```
+
+### 3.2 LEFT JOIN
+Returns all records from the left table and matching records from the right table.
+```sql
+SELECT c.customer_name, p.amount
+FROM customers c
+LEFT JOIN payments p ON c.customer_id = p.customer_id;
+```
+
+### 3.3 RIGHT JOIN
+Returns all records from the right table and matching records from the left table.
+```sql
+SELECT c.customer_name, p.amount
+FROM customers c
+RIGHT JOIN payments p ON c.customer_id = p.customer_id;
+```
+
+### 3.4 FULL OUTER JOIN
+Returns all records when there is a match in either table.
+```sql
+SELECT c.customer_name, p.amount
+FROM customers c
+FULL OUTER JOIN payments p ON c.customer_id = p.customer_id;
+```
+
+### 3.5 CROSS JOIN
+Returns the Cartesian product of both tables.
+```sql
+SELECT * FROM customers CROSS JOIN payments;
+```
+
+### 3.6 SELF JOIN
+A table joins with itself.
+```sql
+SELECT e1.employee_id, e1.name, e2.manager_id
+FROM employees e1
+INNER JOIN employees e2 ON e1.manager_id = e2.employee_id;
+```
+
+## 4. Aggregate Functions (Date/Time Related)
+- `COUNT()` - Counts records.
+- `SUM()` - Adds up values.
+- `AVG()` - Calculates the average value.
+- `MIN()` / `MAX()` - Finds the minimum/maximum value.
+
+### 4.1 Date Functions
+- `CURRENT_DATE` - Fetches the current date.
+- `CURRENT_TIMESTAMP` - Fetches current date & time.
+- `YEAR(date_column)`, `MONTH(date_column)`, `DAY(date_column)` - Extracts year, month, or day.
+- `TIMESTAMPDIFF(DAY, start_date, end_date)` - Finds difference in days.
+- `ADD_MONTHS(date_column, n)` - Adds `n` months to a date.
+- `LAST_DAY(date_column)` - Finds the last day of the month.
+
+Example:
+```sql
+SELECT YEAR(payment_date) AS payment_year, SUM(amount) AS total_amount
+FROM payments
+WHERE payment_mode = 'Wire'
+GROUP BY YEAR(payment_date);
+```
+
+## 5. Payment Processing (Wire, ACH, Cheque)
+### 5.1 Filtering Transactions by Payment Mode
+```sql
+SELECT * FROM transactions WHERE payment_mode IN ('Wire', 'ACH', 'Cheque');
+```
+
+### 5.2 Summarizing Payments per Mode
+```sql
+SELECT payment_mode, COUNT(*) AS total_transactions, SUM(amount) AS total_amount
+FROM transactions
+GROUP BY payment_mode;
+```
+
+### 5.3 Finding Failed Transactions
+```sql
+SELECT * FROM transactions WHERE status = 'Failed' AND payment_mode = 'ACH';
+```
+
+### 5.4 Querying Latest Transactions
+```sql
+SELECT * FROM transactions
+WHERE payment_date >= CURRENT_DATE - 7
+ORDER BY payment_date DESC;
+```
+
+## 6. Advanced Queries in DB2
+### 6.1 Subqueries
+```sql
+SELECT customer_id, customer_name
+FROM customers
+WHERE customer_id IN (SELECT DISTINCT customer_id FROM payments WHERE amount > 1000);
+```
+
+### 6.2 Common Table Expressions (CTEs)
+```sql
+WITH RecentPayments AS (
+    SELECT customer_id, amount, payment_date
+    FROM payments
+    WHERE payment_date >= CURRENT_DATE - 30
+)
+SELECT * FROM RecentPayments;
+```
+
+### 6.3 Window Functions
+```sql
+SELECT customer_id, amount,
+       RANK() OVER (PARTITION BY customer_id ORDER BY amount DESC) AS rank
+FROM payments;
+```
+
+### 6.4 Case Statements
+```sql
+SELECT transaction_id, amount,
+    CASE 
+        WHEN amount < 500 THEN 'Low'
+        WHEN amount BETWEEN 500 AND 2000 THEN 'Medium'
+        ELSE 'High'
+    END AS transaction_category
+FROM transactions;
+```
+
+## 7. Useful Books for DB2 SQL in Banking
+- *SQL in 10 Minutes, Sams Teach Yourself* – Ben Forta
+- *IBM DB2 SQL for Beginners* – Charles Brown
+- *DB2 Developer’s Guide* – Craig Mullins
+
+## 8. Practice Queries
+Try running these queries to reinforce learning:
+```sql
+-- Retrieve all transactions in the last month
+SELECT * FROM transactions
+WHERE payment_date >= ADD_MONTHS(CURRENT_DATE, -1);
+
+-- Count transactions per payment mode
+SELECT payment_mode, COUNT(*) FROM transactions GROUP BY payment_mode;
+
+-- Find the highest payment amount in ACH mode
+SELECT MAX(amount) FROM transactions WHERE payment_mode = 'ACH';
+
+-- Retrieve the most recent payment per customer
+SELECT customer_id, amount, payment_date
+FROM (
+    SELECT customer_id, amount, payment_date,
+           ROW_NUMBER() OVER (PARTITION BY customer_id ORDER BY payment_date DESC) AS row_num
+    FROM payments
+) AS recent_payments
+WHERE row_num = 1;
+```
+
  
+
