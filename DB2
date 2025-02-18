@@ -331,6 +331,253 @@ FROM (
 ) AS recent_payments
 WHERE row_num = 1;
 ```
+Here’s a complete guide to **DB2 SQL queries and useful functions** with examples, tailored for your **Application Support role**.  
 
+---
+
+# **DB2 SQL Queries & Functions Guide**
+## **1. Data Definition Language (DDL)**
+### **1.1 Creating a Table**
+```sql
+CREATE TABLE schema_name.employees (
+    emp_id INT PRIMARY KEY,
+    emp_name VARCHAR(100),
+    dept_id INT,
+    salary DECIMAL(10,2),
+    hire_date DATE
+);
+```
+### **1.2 Altering a Table**
+- **Add a column**  
+  ```sql
+  ALTER TABLE schema_name.employees ADD COLUMN email VARCHAR(100);
+  ```
+- **Modify column data type**  
+  ```sql
+  ALTER TABLE schema_name.employees ALTER COLUMN email SET DATA TYPE VARCHAR(150);
+  ```
+- **Drop a column**  
+  ```sql
+  ALTER TABLE schema_name.employees DROP COLUMN email;
+  ```
+### **1.3 Dropping a Table**
+```sql
+DROP TABLE schema_name.employees;
+```
+
+---
+
+## **2. Data Manipulation Language (DML)**
+### **2.1 Inserting Data**
+```sql
+INSERT INTO schema_name.employees (emp_id, emp_name, dept_id, salary, hire_date)
+VALUES (101, 'John Doe', 10, 60000.50, '2024-01-15');
+```
+### **2.2 Updating Data**
+```sql
+UPDATE schema_name.employees
+SET salary = salary + 5000
+WHERE emp_id = 101;
+```
+### **2.3 Deleting Data**
+```sql
+DELETE FROM schema_name.employees
+WHERE emp_id = 101;
+```
+### **2.4 Selecting Data**
+```sql
+SELECT * FROM schema_name.employees;
+```
+- **Selecting specific columns**
+  ```sql
+  SELECT emp_name, salary FROM schema_name.employees;
+  ```
+- **Filtering with WHERE**
+  ```sql
+  SELECT * FROM schema_name.employees WHERE dept_id = 10;
+  ```
+- **Sorting Results**
+  ```sql
+  SELECT * FROM schema_name.employees ORDER BY salary DESC;
+  ```
+- **Limiting Results**
+  ```sql
+  SELECT * FROM schema_name.employees FETCH FIRST 5 ROWS ONLY;
+  ```
+
+---
+
+## **3. Joins in DB2**
+### **3.1 INNER JOIN**
+```sql
+SELECT e.emp_name, d.dept_name
+FROM schema_name.employees e
+INNER JOIN schema_name.departments d
+ON e.dept_id = d.dept_id;
+```
+### **3.2 LEFT JOIN**
+```sql
+SELECT e.emp_name, d.dept_name
+FROM schema_name.employees e
+LEFT JOIN schema_name.departments d
+ON e.dept_id = d.dept_id;
+```
+### **3.3 RIGHT JOIN**
+```sql
+SELECT e.emp_name, d.dept_name
+FROM schema_name.employees e
+RIGHT JOIN schema_name.departments d
+ON e.dept_id = d.dept_id;
+```
+### **3.4 FULL JOIN**
+```sql
+SELECT e.emp_name, d.dept_name
+FROM schema_name.employees e
+FULL JOIN schema_name.departments d
+ON e.dept_id = d.dept_id;
+```
+
+---
+
+## **4. Aggregate Functions**
+### **4.1 COUNT**
+```sql
+SELECT COUNT(*) FROM schema_name.employees WHERE dept_id = 10;
+```
+### **4.2 SUM**
+```sql
+SELECT SUM(salary) FROM schema_name.employees WHERE dept_id = 10;
+```
+### **4.3 AVG**
+```sql
+SELECT AVG(salary) FROM schema_name.employees;
+```
+### **4.4 MAX & MIN**
+```sql
+SELECT MAX(salary) FROM schema_name.employees;
+SELECT MIN(salary) FROM schema_name.employees;
+```
+
+---
+
+## **5. Date & Time Functions**
+### **5.1 Get Current Date & Time**
+```sql
+SELECT CURRENT_DATE FROM SYSIBM.SYSDUMMY1;
+SELECT CURRENT_TIME FROM SYSIBM.SYSDUMMY1;
+SELECT CURRENT_TIMESTAMP FROM SYSIBM.SYSDUMMY1;
+```
+### **5.2 Extract Year, Month, Day**
+```sql
+SELECT YEAR(hire_date), MONTH(hire_date), DAY(hire_date) FROM schema_name.employees;
+```
+### **5.3 Add/Subtract Date**
+```sql
+SELECT hire_date + 1 YEAR FROM schema_name.employees; -- Add 1 year
+SELECT hire_date - 30 DAYS FROM schema_name.employees; -- Subtract 30 days
+```
+### **5.4 Calculate Date Difference**
+```sql
+SELECT emp_name, DAYS(CURRENT_DATE) - DAYS(hire_date) AS days_worked FROM schema_name.employees;
+```
+
+---
+
+## **6. String Functions**
+### **6.1 CONCAT (String Joining)**
+```sql
+SELECT emp_name || ' works in department ' || dept_id FROM schema_name.employees;
+```
+### **6.2 UPPER & LOWER (Case Conversion)**
+```sql
+SELECT UPPER(emp_name) FROM schema_name.employees;
+SELECT LOWER(emp_name) FROM schema_name.employees;
+```
+### **6.3 LENGTH (String Length)**
+```sql
+SELECT LENGTH(emp_name) FROM schema_name.employees;
+```
+### **6.4 TRIM (Remove Spaces)**
+```sql
+SELECT TRIM(emp_name) FROM schema_name.employees;
+```
+### **6.5 SUBSTRING (Extract Part of String)**
+```sql
+SELECT SUBSTR(emp_name, 1, 3) FROM schema_name.employees; -- First 3 letters
+```
+
+---
+
+## **7. Handling NULL Values**
+### **7.1 Checking NULL Values**
+```sql
+SELECT * FROM schema_name.employees WHERE salary IS NULL;
+```
+### **7.2 Replacing NULL Values (COALESCE)**
+```sql
+SELECT emp_name, COALESCE(salary, 0) FROM schema_name.employees;
+```
+
+---
+
+## **8. Transaction Control**
+### **8.1 BEGIN TRANSACTION**
+```sql
+BEGIN TRANSACTION;
+```
+### **8.2 COMMIT (Save Changes)**
+```sql
+COMMIT;
+```
+### **8.3 ROLLBACK (Undo Changes)**
+```sql
+ROLLBACK;
+```
+
+---
+
+## **9. Performance Optimization**
+### **9.1 Creating an Index**
+```sql
+CREATE INDEX idx_salary ON schema_name.employees(salary);
+```
+### **9.2 Checking Execution Plan**
+```sql
+EXPLAIN PLAN FOR SELECT * FROM schema_name.employees;
+```
+
+---
+
+## **10. User & Permission Management**
+### **10.1 Create a New User**
+```sql
+CREATE USER new_user IDENTIFIED BY 'password';
+```
+### **10.2 Grant Privileges**
+```sql
+GRANT SELECT, INSERT ON schema_name.employees TO new_user;
+```
+### **10.3 Revoke Privileges**
+```sql
+REVOKE INSERT ON schema_name.employees FROM new_user;
+```
+
+---
+
+## **11. Debugging & Logs**
+### **11.1 View Active Sessions**
+```sql
+SELECT * FROM SYSIBM.SYSSESSIONS;
+```
+### **11.2 View Long-Running Queries**
+```sql
+SELECT STMT_TEXT, ELAPSED_TIME FROM SYSIBMADM.LONG_RUNNING_SQL;
+```
+### **11.3 Kill a Long-Running Query**
+```sql
+FORCE APPLICATION (app_handle);
+```
+
+--- 
  
 
